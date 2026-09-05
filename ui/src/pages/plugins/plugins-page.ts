@@ -274,6 +274,7 @@ class PluginsPage extends OpenClawLightDomElement {
     if (!data) {
       return;
     }
+    this.routeDataConsumed = true;
     const detailPluginId =
       this.surface === "settings"
         ? pluginSettingsIdFromPath(data.location.pathname, this.context.basePath)
