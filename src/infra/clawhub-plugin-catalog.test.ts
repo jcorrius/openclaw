@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import {
+  fetchAllOfficialClawHubPlugins,
   fetchClawHubPluginCatalog,
   fetchClawHubPluginCategories,
   fetchClawHubPluginDetail,
@@ -10,6 +11,10 @@ function jsonResponse(value: unknown): Response {
     status: 200,
     headers: { "Content-Type": "application/json" },
   });
+}
+
+function requestUrl(input: string | URL | Request): string {
+  return typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
 }
 
 const remotePlugin = {
@@ -23,14 +28,48 @@ const remotePlugin = {
   categories: ["memory"],
   latestVersion: "1.2.3",
   runtimeId: "memory-plus",
+  icon: "https://cdn.example.com/memory-plus.svg",
   stats: { downloads: 42, installs: 7 },
 };
 
 describe("ClawHub plugin catalog client", () => {
+  it("reads every official page for bundled publication classification", async () => {
+    const requestedUrls: string[] = [];
+    const fetchImpl = vi.fn(async (input: string | URL | Request) => {
+      const url = new URL(requestUrl(input));
+      requestedUrls.push(`${url.pathname}${url.search}`);
+      return jsonResponse(
+        url.searchParams.has("cursor")
+          ? { items: [{ ...remotePlugin, name: "memory-next" }] }
+          : { items: [remotePlugin], nextCursor: "official-next" },
+      );
+    });
+
+    const result = await fetchAllOfficialClawHubPlugins({
+      baseUrl: "https://example.com",
+      fetchImpl,
+    });
+
+    expect(result.map((item) => item.packageName)).toEqual(["memory-plus", "memory-next"]);
+    expect(requestedUrls).toEqual([
+      "/api/v1/plugins?isOfficial=true&sort=recommended&limit=100",
+      "/api/v1/plugins?cursor=official-next&isOfficial=true&sort=recommended&limit=100",
+    ]);
+  });
+
+  it("rejects a repeated official pagination cursor", async () => {
+    const fetchImpl = vi.fn(async () => jsonResponse({ items: [], nextCursor: "stalled" }));
+
+    await expect(
+      fetchAllOfficialClawHubPlugins({ baseUrl: "https://example.com", fetchImpl }),
+    ).rejects.toThrow("repeated a pagination cursor");
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+  });
+
   it("browses the combined plugin endpoint with an opaque cursor", async () => {
     let requestedUrl = "";
     const fetchImpl = vi.fn(async (input: string | URL | Request) => {
-      requestedUrl = String(input);
+      requestedUrl = requestUrl(input);
       return jsonResponse({ items: [remotePlugin], nextCursor: "pkgplugins:{opaque}" });
     });
 
@@ -63,6 +102,7 @@ describe("ClawHub plugin catalog client", () => {
           categories: ["memory"],
           latestVersion: "1.2.3",
           runtimeId: "memory-plus",
+          iconUrl: "https://cdn.example.com/memory-plus.svg",
           downloads: 42,
           installs: 7,
         },
@@ -74,7 +114,7 @@ describe("ClawHub plugin catalog client", () => {
   it("uses plugin search without inventing pagination", async () => {
     let requestedUrl = "";
     const fetchImpl = vi.fn(async (input: string | URL | Request) => {
-      requestedUrl = String(input);
+      requestedUrl = requestUrl(input);
       return jsonResponse({ results: [{ score: 9, package: remotePlugin }] });
     });
 
@@ -100,7 +140,7 @@ describe("ClawHub plugin catalog client", () => {
   it("uses ClawHub's featured filter without overriding its canonical order", async () => {
     let requestedUrl = "";
     const fetchImpl = vi.fn(async (input: string | URL | Request) => {
-      requestedUrl = String(input);
+      requestedUrl = requestUrl(input);
       return jsonResponse({ items: [remotePlugin] });
     });
 
@@ -200,7 +240,7 @@ describe("ClawHub plugin catalog client", () => {
   it("assembles normalized detail from ClawHub package metadata and release endpoints", async () => {
     const requestedUrls: string[] = [];
     const fetchImpl = vi.fn(async (input: string | URL | Request) => {
-      const url = new URL(String(input));
+      const url = new URL(requestUrl(input));
       requestedUrls.push(`${url.pathname}${url.search}`);
       if (url.pathname.endsWith("/versions")) {
         return jsonResponse({
@@ -272,7 +312,11 @@ describe("ClawHub plugin catalog client", () => {
           compatibility: { minGatewayVersion: ">=1.0.0" },
           scanStatus: "clean",
         },
-        owner: { handle: "alice", displayName: "Alice", image: null },
+        owner: {
+          handle: "alice",
+          displayName: "Alice",
+          image: "https://avatars.example.com/alice.png",
+        },
       });
     });
 
@@ -290,7 +334,11 @@ describe("ClawHub plugin catalog client", () => {
     ]);
     expect(detail).toMatchObject({
       packageName: "memory-plus",
-      owner: { handle: "alice", displayName: "Alice" },
+      owner: {
+        handle: "alice",
+        displayName: "Alice",
+        imageUrl: "https://avatars.example.com/alice.png",
+      },
       topics: ["Retrieval"],
       createdAt: 100,
       updatedAt: 300,

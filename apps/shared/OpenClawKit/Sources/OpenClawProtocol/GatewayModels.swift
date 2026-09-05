@@ -21653,28 +21653,32 @@ public struct PluginDiscoveryCategory: Codable, Sendable {
 public struct PluginDiscoveryCatalogFacts: Codable, Sendable {
     public let name: String
     public let summary: String?
-    public let family: AnyCodable
+    public let family: AnyCodable?
     public let author: String?
     public let official: Bool
     public let categories: [String]
     public let icon: String?
+    public let imageurl: String?
     public let latestversion: String?
     public let downloads: Double?
     public let installs: Double?
     public let verificationtier: String?
+    public let publishedtoclawhub: Bool?
 
     public init(
         name: String,
         summary: String? = nil,
-        family: AnyCodable,
+        family: AnyCodable? = nil,
         author: String? = nil,
         official: Bool,
         categories: [String],
         icon: String? = nil,
+        imageurl: String? = nil,
         latestversion: String? = nil,
         downloads: Double? = nil,
         installs: Double? = nil,
-        verificationtier: String? = nil)
+        verificationtier: String? = nil,
+        publishedtoclawhub: Bool? = nil)
     {
         self.name = name
         self.summary = summary
@@ -21683,10 +21687,12 @@ public struct PluginDiscoveryCatalogFacts: Codable, Sendable {
         self.official = official
         self.categories = categories
         self.icon = icon
+        self.imageurl = imageurl
         self.latestversion = latestversion
         self.downloads = downloads
         self.installs = installs
         self.verificationtier = verificationtier
+        self.publishedtoclawhub = publishedtoclawhub
     }
 
     private enum CodingKeys: String, CodingKey {
@@ -21697,10 +21703,12 @@ public struct PluginDiscoveryCatalogFacts: Codable, Sendable {
         case official
         case categories
         case icon
+        case imageurl = "imageUrl"
         case latestversion = "latestVersion"
         case downloads
         case installs
         case verificationtier = "verificationTier"
+        case publishedtoclawhub = "publishedToClawHub"
     }
 }
 
@@ -21710,6 +21718,7 @@ public struct PluginDiscoveryLocalFacts: Codable, Sendable {
     public let enabled: Bool
     public let state: AnyCodable
     public let pluginid: String?
+    public let install: PluginCatalogInstallAction?
     public let action: AnyCodable
 
     public init(
@@ -21718,6 +21727,7 @@ public struct PluginDiscoveryLocalFacts: Codable, Sendable {
         enabled: Bool,
         state: AnyCodable,
         pluginid: String? = nil,
+        install: PluginCatalogInstallAction? = nil,
         action: AnyCodable)
     {
         self.present = present
@@ -21725,6 +21735,7 @@ public struct PluginDiscoveryLocalFacts: Codable, Sendable {
         self.enabled = enabled
         self.state = state
         self.pluginid = pluginid
+        self.install = install
         self.action = action
     }
 
@@ -21734,6 +21745,7 @@ public struct PluginDiscoveryLocalFacts: Codable, Sendable {
         case enabled
         case state
         case pluginid = "pluginId"
+        case install
         case action
     }
 }
@@ -22003,18 +22015,22 @@ public struct PluginsCatalogBrowseParams: Codable, Sendable {
 public struct PluginsCatalogBrowseResult: Codable, Sendable {
     public let items: [PluginDiscoveryEntry]
     public let nextcursor: String?
+    public let remoteerror: String?
 
     public init(
         items: [PluginDiscoveryEntry],
-        nextcursor: String? = nil)
+        nextcursor: String? = nil,
+        remoteerror: String? = nil)
     {
         self.items = items
         self.nextcursor = nextcursor
+        self.remoteerror = remoteerror
     }
 
     private enum CodingKeys: String, CodingKey {
         case items
         case nextcursor = "nextCursor"
+        case remoteerror = "remoteError"
     }
 }
 
@@ -22042,11 +22058,14 @@ public struct PluginsCatalogGetParams: Codable, Sendable {
 
 public struct PluginsCatalogGetResult: Codable, Sendable {
     public let plugin: PluginDiscoveryEntry
+    public let detail: [String: AnyCodable]
 
     public init(
-        plugin: PluginDiscoveryEntry)
+        plugin: PluginDiscoveryEntry,
+        detail: [String: AnyCodable])
     {
         self.plugin = plugin
+        self.detail = detail
     }
 }
 

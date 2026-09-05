@@ -99,6 +99,7 @@ function pluginStatePresentation(plugin: PluginCatalogItem): {
     case "not-installed":
       return { kind: "muted", label: t("pluginsPage.available") };
   }
+  return plugin.state satisfies never;
 }
 
 function matchesQuery(plugin: PluginCatalogItem, query: string): boolean {
@@ -177,19 +178,20 @@ function renderInstalledInventory(props: InventoryProps): TemplateResult {
   if (props.loading) {
     return renderSettingsLoadingSkeleton({ rows: 4, carapace: true });
   }
-  if (props.error) {
+  if (props.error && !props.result) {
     return renderRetryError(props.error, props.onRefresh);
   }
+  const refreshError = props.error ? renderRetryError(props.error, props.onRefresh) : nothing;
   const plugins = (props.result?.plugins ?? [])
     .filter((plugin) => plugin.installed && matchesQuery(plugin, props.query))
     .toSorted((left, right) => left.name.localeCompare(right.name));
   if (plugins.length === 0) {
-    return renderSettingsEmpty(
+    return html`${refreshError}${renderSettingsEmpty(
       props.query ? t("pluginsPage.noSettingsMatches") : t("pluginsPage.noInstalled"),
       { carapace: true },
-    );
+    )}`;
   }
-  return html`${repeat(
+  return html`${refreshError}${repeat(
     plugins,
     (plugin) => plugin.id,
     (plugin) => {
