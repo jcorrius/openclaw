@@ -593,6 +593,36 @@ describe("plugin management Gateway handlers", () => {
     });
   });
 
+  it("keeps queried Bundled requests limited to unpublished bundled plugins", async () => {
+    catalogMocks.allOfficial.mockResolvedValue([]);
+    managementMocks.list.mockResolvedValue({
+      plugins: [
+        {
+          id: "memory-bundle",
+          name: "Memory Bundle",
+          packageName: "@openclaw/memory-bundle",
+          origin: "bundled",
+          installed: false,
+          enabled: false,
+          state: "not-installed",
+        },
+      ],
+      diagnostics: [],
+      mutationAllowed: true,
+    });
+
+    const result = await callHandler("plugins.catalog.browse", {
+      query: "memory",
+      intent: "bundled",
+      pageSize: 25,
+    });
+
+    expect(catalogMocks.browse).not.toHaveBeenCalled();
+    expect(result.response).toMatchObject({
+      items: [{ catalog: { name: "Memory Bundle", publishedToClawHub: false } }],
+    });
+  });
+
   it("preserves the Official filter for direct search requests", async () => {
     catalogMocks.browse.mockResolvedValue({ items: [] });
     managementMocks.list.mockResolvedValue({

@@ -184,7 +184,7 @@ export const pluginsHandlers: GatewayRequestHandlers = {
       const canIncludeBundledOnly = includeBundledOnly && !publicationError;
       try {
         const remote =
-          intent === "bundled" && !query
+          intent === "bundled"
             ? { items: [] }
             : await fetchClawHubPluginCatalog({
                 query,
