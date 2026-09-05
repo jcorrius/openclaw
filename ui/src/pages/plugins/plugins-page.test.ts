@@ -87,6 +87,11 @@ describe("PluginsPage", () => {
       }
       return method === "plugins.catalog.categories" ? { categories: [] } : { items: [] };
     });
+    const harness = createGateway(client);
+    const { page } = await mountPage(
+      createContext(harness.gateway),
+      createPluginsRouteData(harness.gateway, null, createPluginsRouteLocation("/plugins")),
+    );
 
     await waitForFast(() =>
       expect(page.querySelector('[role="alert"]')?.textContent).toContain("catalog unavailable"),
