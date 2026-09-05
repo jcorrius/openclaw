@@ -172,7 +172,6 @@ a.installed-plugins-card,
   border-radius: var(--radius-lg);
   background: var(--bg-elevated);
   color: inherit;
-  cursor: pointer;
   text-decoration: none;
   transition:
     border-color var(--duration-fast) ease,
@@ -473,34 +472,21 @@ a.installed-plugins-card,
   gap: var(--space-3);
 }
 
-.plugin-catalog-intents {
-  display: inline-flex;
-  gap: 2px;
-  padding: 3px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  background: var(--bg-elevated);
+.plugin-catalog-intents.oc-segmented {
+  width: max-content;
+  max-width: 100%;
+  --track-color: transparent;
+  --indicator-color: transparent;
 }
 
-.plugin-catalog-intent {
+.plugin-catalog-intents.oc-segmented wa-tab.hub-tab {
+  min-height: 0;
+  padding: 0;
+}
+
+.plugin-catalog-intents.oc-segmented wa-tab.hub-tab::part(base) {
   min-height: 30px;
   padding: 4px var(--space-3);
-  border: 0;
-  border-radius: calc(var(--radius-md) - 3px);
-  background: transparent;
-  color: var(--muted);
-  font: inherit;
-  font-size: var(--control-ui-text-sm);
-}
-
-.plugin-catalog-intent:hover,
-.plugin-catalog-intent.is-active {
-  color: var(--text-strong);
-}
-
-.plugin-catalog-intent.is-active {
-  background: var(--bg-hover);
-  box-shadow: var(--shadow-sm);
 }
 
 .plugin-catalog-search {
@@ -2145,29 +2131,8 @@ h3.plugins-subheader {
 }
 
 .plugin-catalog-detail__tabs {
-  display: flex;
+  width: 100%;
   overflow-x: auto;
-  border-bottom: 1px solid var(--border);
-}
-
-.plugin-catalog-detail__tabs button {
-  padding: var(--space-3) var(--space-4);
-  border: 0;
-  border-bottom: 2px solid transparent;
-  background: transparent;
-  color: var(--muted);
-  cursor: pointer;
-  font: inherit;
-  white-space: nowrap;
-}
-
-.plugin-catalog-detail__tabs button:hover,
-.plugin-catalog-detail__tabs button.is-active {
-  color: var(--text-strong);
-}
-
-.plugin-catalog-detail__tabs button.is-active {
-  border-bottom-color: var(--accent);
 }
 
 .plugin-catalog-detail__panel {
