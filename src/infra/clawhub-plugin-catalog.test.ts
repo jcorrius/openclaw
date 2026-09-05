@@ -66,6 +66,23 @@ describe("ClawHub plugin catalog client", () => {
     expect(fetchImpl).toHaveBeenCalledTimes(2);
   });
 
+  it("reuses the complete official catalog across default-client searches", async () => {
+    const fetchImpl = vi.fn(async () => jsonResponse({ items: [remotePlugin] }));
+    vi.stubGlobal("fetch", fetchImpl);
+
+    try {
+      const first = await fetchAllOfficialClawHubPlugins();
+      const second = await fetchAllOfficialClawHubPlugins();
+
+      expect(first.map((item) => item.packageName)).toEqual(["memory-plus"]);
+      expect(second).toEqual(first);
+      expect(second).not.toBe(first);
+      expect(fetchImpl).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
   it("browses the combined plugin endpoint with an opaque cursor", async () => {
     let requestedUrl = "";
     const fetchImpl = vi.fn(async (input: string | URL | Request) => {

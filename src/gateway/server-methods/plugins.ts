@@ -188,7 +188,7 @@ export const pluginsHandlers: GatewayRequestHandlers = {
             ? { items: [] }
             : await fetchClawHubPluginCatalog({
                 query,
-                intent: intent === "bundled" ? "all" : intent,
+                intent,
                 category: params.category,
                 cursor: params.cursor,
                 limit: params.pageSize ?? 20,

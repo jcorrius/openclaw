@@ -98,6 +98,14 @@ type ClawHubReadOptions = {
   fetchImpl?: ClawHubFetch;
 };
 
+const OFFICIAL_CATALOG_CACHE_TTL_MS = 5 * 60_000;
+let officialCatalogCache:
+  | {
+      expiresAt: number;
+      value: Promise<ClawHubPluginCatalogEntry[]>;
+    }
+  | undefined;
+
 const BARE_ICON_KEY = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/u;
 const PLUGIN_CATEGORY_ICON_KEYS = new Set([
   "activity",
@@ -446,6 +454,33 @@ export async function fetchClawHubPluginCatalog(
 /** Reads the complete official plugin identity set used to classify bundled-only entries. */
 export async function fetchAllOfficialClawHubPlugins(
   options: ClawHubReadOptions = {},
+): Promise<ClawHubPluginCatalogEntry[]> {
+  const usesDefaultClient = Object.values(options).every((value) => value === undefined);
+  const now = Date.now();
+  if (usesDefaultClient && officialCatalogCache && now < officialCatalogCache.expiresAt) {
+    return [...(await officialCatalogCache.value)];
+  }
+
+  const read = readAllOfficialClawHubPlugins(options);
+  if (!usesDefaultClient) {
+    return await read;
+  }
+
+  // All-search classification needs the complete official identity set. Keep one bounded,
+  // shared read so repeated keystrokes do not replay every ClawHub pagination request.
+  officialCatalogCache = { expiresAt: now + OFFICIAL_CATALOG_CACHE_TTL_MS, value: read };
+  try {
+    return [...(await read)];
+  } catch (error) {
+    if (officialCatalogCache?.value === read) {
+      officialCatalogCache = undefined;
+    }
+    throw error;
+  }
+}
+
+async function readAllOfficialClawHubPlugins(
+  options: ClawHubReadOptions,
 ): Promise<ClawHubPluginCatalogEntry[]> {
   const items: ClawHubPluginCatalogEntry[] = [];
   const seenCursors = new Set<string>();

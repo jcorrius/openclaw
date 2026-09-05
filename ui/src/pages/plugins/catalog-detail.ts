@@ -35,18 +35,20 @@ export type PluginCatalogDetailProps = {
   iconUrls: Readonly<Record<string, string>>;
 };
 
-function clawHubPackageUrl(
+export function clawHubPackageUrl(
   packageName: string | undefined,
   author: string | undefined,
 ): string | null {
-  if (!packageName || !author) {
+  if (!packageName) {
     return null;
   }
-  const handle = author.replace(/^@+/u, "");
+  const scopedOwner = /^@([^/]+)\//u.exec(packageName)?.[1];
+  const handle = author?.replace(/^@+/u, "") || scopedOwner;
   const slug = packageName.split("/").at(-1);
-  return slug
-    ? `https://clawhub.ai/${encodeURIComponent(handle)}/plugins/${encodeURIComponent(slug)}`
-    : null;
+  if (handle && slug) {
+    return `https://clawhub.ai/${encodeURIComponent(handle)}/plugins/${encodeURIComponent(slug)}`;
+  }
+  return `https://clawhub.ai/plugins/${encodeURIComponent(packageName)}`;
 }
 
 function tabLabel(tab: PluginCatalogDetailTab): string {
