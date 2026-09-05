@@ -277,7 +277,7 @@ describeControlUiE2e("Control UI Plugins mocked Gateway E2E", () => {
       expect(
         await page.getByText("Connect OpenClaw to Matrix rooms and direct messages.").count(),
       ).toBe(1);
-      const detailTabs = page.getByRole("tablist", { name: "Plugin details" });
+      const detailTabs = page.locator("wa-tab-group.plugin-catalog-detail__tabs");
       expect(await detailTabs.getByRole("tab", { name: "README" }).count()).toBe(1);
       expect(await detailTabs.getByRole("tab", { name: "Skills" }).count()).toBe(1);
       expect(await detailTabs.getByRole("tab", { name: "Configuration" }).count()).toBe(1);
@@ -533,7 +533,7 @@ describeControlUiE2e("Control UI Plugins mocked Gateway E2E", () => {
       expect(await page.getByText("@openclaw", { exact: true }).count()).toBe(0);
       expect(await page.getByText("Security", { exact: true }).count()).toBe(0);
       await page
-        .getByRole("tablist", { name: "Plugin details" })
+        .locator("wa-tab-group.plugin-catalog-detail__tabs")
         .getByRole("tab", { name: "Skills" })
         .click();
       expect(await page.getByText("Calendar planning", { exact: true }).count()).toBe(1);
