@@ -9,6 +9,7 @@ import { formatUiExternalText } from "../../lib/format-error.ts";
 import { formatDateMs } from "../../lib/format.ts";
 import type { PluginDiscoveryDetailResult } from "../../lib/plugins/index.ts";
 import "../../styles/sidebar-markdown.css";
+import { clawHubPackageUrl } from "./catalog-links.ts";
 import { formatCompactCount } from "./catalog-results.ts";
 import { renderPluginAuthor, renderPluginOfficialBadge } from "./plugin-card.ts";
 
@@ -34,22 +35,6 @@ export type PluginCatalogDetailProps = {
   onInstall: () => void;
   iconUrls: Readonly<Record<string, string>>;
 };
-
-export function clawHubPackageUrl(
-  packageName: string | undefined,
-  author: string | undefined,
-): string | null {
-  if (!packageName) {
-    return null;
-  }
-  const scopedOwner = /^@([^/]+)\//u.exec(packageName)?.[1];
-  const handle = author?.replace(/^@+/u, "") || scopedOwner;
-  const slug = packageName.split("/").at(-1);
-  if (handle && slug) {
-    return `https://clawhub.ai/${encodeURIComponent(handle)}/plugins/${encodeURIComponent(slug)}`;
-  }
-  return `https://clawhub.ai/plugins/${encodeURIComponent(packageName)}`;
-}
 
 function tabLabel(tab: PluginCatalogDetailTab): string {
   return t(`pluginsPage.detailTabs.${tab}`);

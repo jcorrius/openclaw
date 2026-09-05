@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { clawHubPackageUrl } from "./catalog-detail.ts";
+import { clawHubPackageUrl } from "./catalog-links.ts";
 
 describe("clawHubPackageUrl", () => {
   it("derives the publisher route from a scoped package when author metadata is absent", () => {
