@@ -16,14 +16,7 @@ function baseProps(overrides: Partial<InstalledPluginsProps> = {}): InstalledPlu
     expanded: false,
     searchOpen: false,
     query: "",
-    busy: {},
     iconUrls: {},
-    canMutate: true,
-    mutationBlockedReason: null,
-    consent: null,
-    consentInspection: null,
-    consentInspectionLoading: false,
-    consentInspectionError: null,
     onExpandedChange: vi.fn(),
     onSearchOpenChange: vi.fn(),
     onQueryChange: vi.fn(),
@@ -31,9 +24,6 @@ function baseProps(overrides: Partial<InstalledPluginsProps> = {}): InstalledPlu
     settingsHref: (pluginId) => `/settings/plugins/${pluginId}?from=plugins`,
     onOpenSettings: vi.fn(),
     onIconError: vi.fn(),
-    onCancelConsent: vi.fn(),
-    onConfirmConsent: vi.fn(),
-    onRetryConsentInspection: vi.fn(),
     ...overrides,
   };
 }
@@ -192,10 +182,9 @@ describe("renderInstalledPlugins", () => {
     expect(visiblePluginIds(container)).toHaveLength(9);
   });
 
-  it("uses the Carapace surface without repeating an inventory subtitle", () => {
+  it("uses Carapace cards without repeating an inventory subtitle", () => {
     const container = mount(baseProps());
 
-    expect(container.querySelector(".settings-page.oc-app-surface")).not.toBeNull();
     expect(
       container.querySelector(".installed-plugins-card.oc-card.oc-card-interactive"),
     ).not.toBeNull();

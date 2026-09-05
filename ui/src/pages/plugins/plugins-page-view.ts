@@ -6,6 +6,7 @@ import {
 } from "../../app-route-paths.ts";
 import type { ApplicationContext } from "../../app/context.ts";
 import { analyzeConfigSchema } from "../../components/config-form.ts";
+import { renderSettingsPage } from "../../components/settings-ui.ts";
 import { renderSettingsWorkspace } from "../../components/settings-workspace.ts";
 import { t } from "../../i18n/index.ts";
 import type {
@@ -186,68 +187,61 @@ export function renderPluginsPage(model: PluginsPageViewModel) {
                       },
                       iconUrls: model.catalogIconUrls,
                     })
-                  : html`${renderInstalledPlugins({
-                      connected: model.connected,
-                      loading: model.loading,
-                      result: model.result,
-                      error: model.error,
-                      expanded: model.inventoryExpanded,
-                      searchOpen: model.inventorySearchOpen,
-                      query: model.query,
-                      busy: model.busy,
-                      iconUrls: model.iconUrls,
-                      attributions: discovery.attributions,
-                      canMutate: model.canMutate,
-                      mutationBlockedReason: model.mutationBlockedReason,
-                      consent: consentController.consent,
-                      consentInspection: consentController.inspection,
-                      consentInspectionLoading: consentController.inspectionLoading,
-                      consentInspectionError: consentController.inspectionError,
-                      onExpandedChange: actions.setInventoryExpanded,
-                      onSearchOpenChange: actions.setInventorySearchOpen,
-                      onQueryChange: actions.setQuery,
-                      onRefresh: actions.refreshCatalog,
-                      settingsHref: (pluginId) =>
-                        `${pathForPluginSettings(pluginId, context.basePath)}?from=plugins`,
-                      onOpenSettings: (pluginId) =>
-                        actions.openPluginSettings(pluginId ?? null, true),
-                      onIconError: actions.handlePluginIconError,
-                      onCancelConsent: () => consentController.close(),
-                      onConfirmConsent: () => consentController.confirm(),
-                      onRetryConsentInspection: () => void consentController.inspect(),
-                    })}${renderPluginCatalogResults({
-                      connected: model.connected,
-                      loading: discovery.loading,
-                      paging: discovery.paging,
-                      pageNumber: discovery.pageNumber,
-                      canGoPrevious: discovery.canGoPrevious,
-                      canGoNext: discovery.canGoNext,
-                      result: discovery.result,
-                      error: discovery.error,
-                      remoteError: discovery.remoteError,
-                      categories: discovery.categories,
-                      categoriesError: discovery.categoriesError,
-                      featured: discovery.featured,
-                      featuredLoading: discovery.featuredLoading,
-                      featuredError: discovery.featuredError,
-                      intent: discovery.intent,
-                      category: discovery.category,
-                      query: discovery.query,
-                      iconUrls: model.catalogIconUrls,
-                      entryHref: (id) => pathForPluginCatalogEntry(id, context.basePath),
-                      onIntentChange: (intent) => discovery.selectIntent(intent),
-                      onCategoryChange: (category) => discovery.selectCategory(category),
-                      onQueryChange: (query) => discovery.updateQuery(query),
-                      onOpenEntry: (id) =>
-                        context.navigate("plugins", {
-                          pathname: pathForPluginCatalogEntry(id, context.basePath),
-                        }),
-                      onPreviousPage: () => void discovery.previousPage(),
-                      onNextPage: () => void discovery.nextPage(),
-                      onRetry: () => void discovery.refresh(),
-                      onRetryCategories: () => void discovery.refreshCategories(),
-                      onRetryFeatured: () => void discovery.refreshFeatured(),
-                    })}`
+                  : renderSettingsPage(
+                      html`${renderInstalledPlugins({
+                        connected: model.connected,
+                        loading: model.loading,
+                        result: model.result,
+                        error: model.error,
+                        expanded: model.inventoryExpanded,
+                        searchOpen: model.inventorySearchOpen,
+                        query: model.query,
+                        iconUrls: model.iconUrls,
+                        attributions: discovery.attributions,
+                        onExpandedChange: actions.setInventoryExpanded,
+                        onSearchOpenChange: actions.setInventorySearchOpen,
+                        onQueryChange: actions.setQuery,
+                        onRefresh: actions.refreshCatalog,
+                        settingsHref: (pluginId) =>
+                          `${pathForPluginSettings(pluginId, context.basePath)}?from=plugins`,
+                        onOpenSettings: (pluginId) =>
+                          actions.openPluginSettings(pluginId ?? null, true),
+                        onIconError: actions.handlePluginIconError,
+                      })}${renderPluginCatalogResults({
+                        connected: model.connected,
+                        loading: discovery.loading,
+                        paging: discovery.paging,
+                        pageNumber: discovery.pageNumber,
+                        canGoPrevious: discovery.canGoPrevious,
+                        canGoNext: discovery.canGoNext,
+                        result: discovery.result,
+                        error: discovery.error,
+                        remoteError: discovery.remoteError,
+                        categories: discovery.categories,
+                        categoriesError: discovery.categoriesError,
+                        featured: discovery.featured,
+                        featuredLoading: discovery.featuredLoading,
+                        featuredError: discovery.featuredError,
+                        intent: discovery.intent,
+                        category: discovery.category,
+                        query: discovery.query,
+                        iconUrls: model.catalogIconUrls,
+                        entryHref: (id) => pathForPluginCatalogEntry(id, context.basePath),
+                        onIntentChange: (intent) => discovery.selectIntent(intent),
+                        onCategoryChange: (category) => discovery.selectCategory(category),
+                        onQueryChange: (query) => discovery.updateQuery(query),
+                        onOpenEntry: (id) =>
+                          context.navigate("plugins", {
+                            pathname: pathForPluginCatalogEntry(id, context.basePath),
+                          }),
+                        onPreviousPage: () => void discovery.previousPage(),
+                        onNextPage: () => void discovery.nextPage(),
+                        onRetry: () => void discovery.refresh(),
+                        onRetryCategories: () => void discovery.refreshCategories(),
+                        onRetryFeatured: () => void discovery.refreshFeatured(),
+                      })}`,
+                      { wide: true, carapace: true },
+                    )
               }</wa-tab-panel
             >`
           : detailPluginId
